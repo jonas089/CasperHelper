@@ -1,7 +1,7 @@
 import os
 
 # Define a default / backup .sh file to recover on error
-_bash_backup = 'casper-client put-deploy --node-address http://136.243.187.84:7777 --chain-name casper-test --secret-key ./key.pem --payment-amount 100000000 --session-path ./counter/target/wasm32-unknown-unknown/release/counter.wasm --session-args'
+_bash_backup = 'casper-client put-deploy --node-address http://136.243.187.84:7777 --chain-name casper-test --secret-key ./key.pem --payment-amount 100000000 --session-path ./counter/target/wasm32-unknown-unknown/release/counter.wasm'
 _bash_name = 'pydeploy.sh'
 
 # Change to argparse later, for now using Inputs
@@ -20,7 +20,7 @@ while True:
 		break
 	session_args += str(i) + ' '
 # Array of tuples to store key and value for easy replacement algorithm to do magic
-config = [('--node-address', node_address), ('--chain-name', chain_name), ('--secret-key', secret_key), ('--session-path', session_path), ("--payment-amount", payment_amount), ('--session-args', session_args)]
+config = [('--node-address', node_address), ('--chain-name', chain_name), ('--secret-key', secret_key), ('--session-path', session_path), ("--payment-amount", payment_amount)]
 print('Session Args: ', session_args)
 try:
 	with open(_bash_name, 'r') as _bash_file:
@@ -43,11 +43,7 @@ print(_bash)
 for i in range(0, len(_bash)):
 	for e in range(0, len(config)):
 		if config[e][0] == _bash[i]:
-			try:
-				_bash[i+1] = config[e][1]
-			except Exception as LIST_ASSIGNMENT_ERROR: #This happens to raise on --session-args, as the default is empty.
-				_bash.append(config[e][1])
-			continue
+			_bash[i+1] = config[e][1]
 
 # Undo the .split() and write string to the .sh file
 print(_bash)
@@ -55,6 +51,8 @@ new_bash_str = ''
 for key in _bash:
 	new_bash_str += key + ' '
 
+
+new_bash_str += "--session-arg " + session_args
 print(new_bash_str)
 
 with open(_bash_name, 'w') as _bash_file:
